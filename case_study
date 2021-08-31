@@ -1,6 +1,11 @@
 ## Overview
 
-I feel like every parent knows how challenging the first weeks of having a baby can be. Lot's of sleepless nights feeding and comforting the little one (LO). My wife and I researched methods on how to create the right environment to allow our child to sleep through the night as soon as capable. We had success in one method which allowed our LO to finally sleep within weeks of starting the training. We also kept diligent logs of wake, sleep, and feeding periods in order to create the necessary conditions for overnight sleep. This is an exploration of the logs for the first year and a half and an excercise of the data analysis process.
+I feel like every parent knows how challenging the first weeks of having a baby can be. 
+Lot's of sleepless nights feeding and comforting the little one (LO). 
+My wife and I researched methods on how to create the right environment to allow our child to sleep through the night as soon as capable. 
+We had success in one method which allowed our LO to finally sleep within weeks of starting the training. 
+We also kept diligent logs of wake, sleep, and feeding periods in order to create the necessary conditions for overnight sleep. 
+This is an exploration of the logs for the first year and a half and an excercise of the data analysis process.
 
 ### ASK
 
@@ -11,7 +16,9 @@ To start, I had to ask a few questions to frame this project. The questions I so
 
 ### PREPARE
 
-The dataset I will be using comes from the baby tracker app. I exported the files into a csv and uploaded them onto my drive. There are 9 csv files to work with.
+The dataset I will be using comes from the baby tracker app. 
+I exported the files into a csv and uploaded them onto my drive. 
+There are 9 csv files to work with.
 
 ### PROCESS
 

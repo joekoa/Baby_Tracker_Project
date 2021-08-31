@@ -1,0 +1,134 @@
+## Overview
+
+I feel like every parent knows how challenging the first weeks of having a baby can be. Lot's of sleepless nights feeding and comforting the little one (LO). My wife and I researched methods on how to create the right environment to allow our child to sleep through the night as soon as capable. We had success in one method which allowed our LO to finally sleep within weeks of starting the training. We also kept diligent logs of wake, sleep, and feeding periods in order to create the necessary conditions for overnight sleep. This is an exploration of the logs for the first year and a half and an excercise of the data analysis process.
+
+### ASK
+
+To start, I had to ask a few questions to frame this project. The questions I sought to be answered were:
+1. How does sleep training impact an my LO ability to sleep through the night versus the average infant?
+2. What evidence is there to indicate correlation between structured nap periods to sleeping through the night?
+3. Is there correlation between scheduled feeding to sleeping through the night?
+
+### PREPARE
+
+The dataset I will be using comes from the baby tracker app. I exported the files into a csv and uploaded them onto my drive. There are 9 csv files to work with.
+
+### PROCESS
+
+I identify 3 csv files that have sufficient and relevant information to my the project, so I convert them to spreedsheets to do an initial check of the data. 
+I delete a handful of duplicates and trim whitespace from the columns. 
+On the total duration column for nursing I notice that they are all 0 so I insert a sum function down the column for the total then repaste as values.
+I upload them to big query and look at look over it again.
+
+### ANALYZE
+
+- Experts define sleeping through the night as more than 6 hours of sleep or 360 minutes so I start from there. 
+
+SELECT
+    Time, 
+    Duration_min
+FROM
+  `sincere-cacao-323417.baby_tracker.baby_sleep`
+WHERE Duration_min > 360
+ORDER BY Time
+
+- I see that the first 6 hour night was on 3/25 then from 3/27-3/29 on and off every other day until a long stretch from 4/11-4/26 and it continues with an improving consistency. 
+
+- So we see that within the first 2 months my LO was able to sleep over 6 hours consistently. 
+
+- The next question is whether there was a relationship between the sleep training and sleeping through the night. 
+
+- According to the training, having 2 to 3 naps for 1 to 2 hours per nap was optimal for a full nights rest. 
+
+SELECT
+    DATE(Time) AS Day,
+    COUNTIF(nap = TRUE) AS nap,
+    COUNTIF(nap = FALSE) as thru_night,
+    SUM(duration_min) AS total_time_sleep,
+FROM
+(
+    SELECT
+    Time,
+    Duration_min,
+    Duration_min < 360 as nap,
+  FROM 
+  `sincere-cacao-323417.baby_tracker.baby_sleep`
+)
+GROUP BY Day 
+ORDER BY Day
+
+- Using this query we can identify patterns or naps and overnight sleeps which show consistant naps to sleeping through the night.
+
+- I then want to see the frequency of naps and the duration and how their relation to sleeping through the night.
+
+SELECT
+    Time,
+    nap,
+    Duration_min,
+FROM
+(
+    SELECT
+    Time,
+    Duration_min,
+    Duration_min < 360 as nap,
+  FROM 
+  `sincere-cacao-323417.baby_tracker.baby_sleep`
+)
+-- WHERE nap = true
+GROUP BY Time, Nap, Duration_min 
+ORDER BY Time
+
+- This query allows me to identify the nap durations. I can remove the where clause to include overnight sleep.
+
+- Next I want to look at feeding patterns. I start by combining the pumped and nursing tables
+
+SELECT 
+    time,
+    CAST(Total_Duration_min AS FLOAT64) AS drink 
+FROM `sincere-cacao-323417.baby_tracker.nursing`
+UNION ALL 
+SELECT 
+    time,
+    Amount_oz as drink
+FROM `sincere-cacao-323417.baby_tracker.pumped`
+ORDER BY 1
+
+- Because nursing is measure in time and pumped in oz the data column is less relevant than the instances. 
+
+- We then organize by instances of drinking by day
+
+WITH feeding_data AS
+(
+    SELECT 
+    time,
+    CAST(Total_Duration_min AS FLOAT64) AS drink 
+FROM `sincere-cacao-323417.baby_tracker.nursing`
+UNION ALL 
+SELECT 
+    time,
+    Amount_oz as drink
+FROM `sincere-cacao-323417.baby_tracker.pumped`
+)
+
+SELECT 
+    DATE(Time) AS Day,
+    COUNT(drink) AS drinks_day
+FROM feeding_data 
+GROUP BY Day
+ORDER BY Day
+
+- Looking through the days we see a similar pattern of instances that become routine within the first few months. 
+
+### SHARE
+
+Data Visualization:
+https://public.tableau.com/app/profile/joseph.silva/viz/RelationshipbetweenNapsFeedingtoOvernightSleep/Dashboard1?publish=yes
+
+Based on my exploration and through the visuals we can answer the following questions:
+
+1. How does sleep training impact an my LO ability to sleep through the night versus the average infant?
+  - Where as the average infant is able to sleep through the night by 3 months or 12 weeks, our LO was able to sleep through starting at 7 weeks. 
+2. What evidence is there to indicate correlation between structured nap periods to sleeping through the night?
+  - As the frequency and consistency of naps occured, so to did the length of time sleeping over night. 
+3. Is there correlation between scheduled feeding to sleeping through the night?
+  - Similar insights were made from the analysis and the dashboard further amplifies this.
